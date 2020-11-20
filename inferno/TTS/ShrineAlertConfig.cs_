@@ -1,0 +1,42 @@
+using Turbo.Plugins.Default;
+
+namespace Turbo.Plugins.inferno
+{
+    public class ShrineAlertConfig : BasePlugin, ICustomizer
+    {
+        public ShrineAlertConfig()
+        {
+            Enabled = true;
+        }
+
+        public override void Load(IController hud)
+        {
+            base.Load(hud);
+        }
+		
+        public void Customize()
+        {
+			Hud.RunOnPlugin<inferno.ShrineAlertPlugin>(plugin =>
+			{
+				// Shrine Alerts Examples
+				// null = use localized name for that shrine
+				// "" 	= no TTS for that shrine
+				plugin.UseCustomNames = true;
+				plugin.ShrineCustomNames[ShrineType.BlessedShrine] 		= "";
+				plugin.ShrineCustomNames[ShrineType.EnlightenedShrine] 	= "";
+				plugin.ShrineCustomNames[ShrineType.FortuneShrine] 		= "";
+				plugin.ShrineCustomNames[ShrineType.FrenziedShrine] 	= "";
+				plugin.ShrineCustomNames[ShrineType.EmpoweredShrine] 	= "";
+				plugin.ShrineCustomNames[ShrineType.FleetingShrine] 	= "";
+				plugin.ShrineCustomNames[ShrineType.PowerPylon] 		= "POWER";
+				plugin.ShrineCustomNames[ShrineType.ConduitPylon] 		= "Conduit";
+				plugin.ShrineCustomNames[ShrineType.ChannelingPylon] 	= "";
+				plugin.ShrineCustomNames[ShrineType.ShieldPylon] 		= "shield";
+				plugin.ShrineCustomNames[ShrineType.SpeedPylon] 		= "Speed";
+				plugin.ShrineCustomNames[ShrineType.BanditShrine] 		= "";
+				plugin.ShrineCustomNames[ShrineType.PoolOfReflection] 	= "pool";
+				plugin.ShrineCustomNames[ShrineType.HealingWell] 		= "";
+			});
+        }
+    }
+}

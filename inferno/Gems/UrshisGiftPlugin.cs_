@@ -1,0 +1,193 @@
+// http://www.ownedcore.com/forums/diablo-3/turbohud/turbohud-plugin-review-zone/636940-v7-3-international-resu-urshisgiftplugin.html 
+ 
+using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Diagnostics;
+using Turbo.Plugins.Default;
+ 
+namespace Turbo.Plugins.inferno.gems
+{
+    public class UrshisGiftPlugin : BasePlugin, IInGameTopPainter
+    {
+        public bool InventoryNumbers { get; set; }
+        public bool HoveredNumbers { get; set; }
+       
+        public IBrush ShadowBrush { get; set; }
+        public IBrush InventoryLockBorderBrush { get; set; }
+        public IFont GRupgradeChanceFont { get; set; }
+        public int GRlevel { get; set; }
+        public int ChanceWantedPercentage { get; set; }
+        public int NumberOfAttempts { get; set; }
+        public int AddPerc
+        {
+            get
+            {
+                if (ChanceWantedPercentage == 100) return 10;
+                if (ChanceWantedPercentage == 90) return 9;
+                if (ChanceWantedPercentage == 80) return 8;
+                if (ChanceWantedPercentage == 70) return 7;
+                if (ChanceWantedPercentage == 60) return 0;
+                if (ChanceWantedPercentage == 30) return -1;
+                if (ChanceWantedPercentage == 15) return -2;
+                if (ChanceWantedPercentage == 8) return -3;
+                if (ChanceWantedPercentage == 4) return -4;
+                if (ChanceWantedPercentage == 2) return -5;
+                if (ChanceWantedPercentage == 1) return -15;
+               
+                return 500;
+            }
+        }
+       
+        private HashSet<int> Chances = new HashSet<int> {100,90,80,70,60,30,15,8,4,2,1};
+        private HashSet<int> Attempts = new HashSet<int> {1,2,3,4,5};
+       
+        public Func<float> LeftFunc { get; set; }
+        public Func<float> TopFunc { get; set; }
+       
+        public IFont UpgradeFont { get; set; }
+        public string UpgradeText { get; set; }
+        public string UpgradeTextMax { get; set; }
+		public string UpgradeTextOne { get; set; }
+	   
+        public UrshisGiftPlugin()
+        {
+            Enabled = true;
+           
+            InventoryNumbers = true;        //show numbers in inventory, stash
+            HoveredNumbers = true;          //show upgrad hint on item hovered
+        }
+ 
+        public override void Load(IController hud)
+        {
+            base.Load(hud);
+            ChanceWantedPercentage = 100;
+            NumberOfAttempts = 3;
+ 
+            ShadowBrush = Hud.Render.CreateBrush(175, 0, 0, 0, -1.6f);
+            GRupgradeChanceFont = Hud.Render.CreateFont("arial", 7, 255, 0, 0, 0, true, false, false);
+            GRupgradeChanceFont.SetShadowBrush(128, 39, 229, 224, true);
+           
+            LeftFunc = () =>
+            {
+                var uicMain = Hud.Inventory.GetHoveredItemMainUiElement();
+                return uicMain.Rectangle.X + uicMain.Rectangle.Width * 0.23f;
+            };
+            TopFunc = () =>
+            {
+                var uicTop = Hud.Inventory.GetHoveredItemTopUiElement();
+                return uicTop.Rectangle.Bottom + (40f / 1200.0f * Hud.Window.Size.Height);
+            };
+           
+            UpgradeFont = Hud.Render.CreateFont("tahoma", 7, 255, 200, 200, 200, false, false, false);
+			UpgradeTextOne = "GR {0}+ for one attempt at a {1}% upgrade chance";
+            UpgradeText = "GR {0}+ for {1} attempts at a {2}% upgrade chance";  
+			UpgradeTextMax = "Max level!";  
+        }
+ 
+        private int stashTabAbs;
+ 
+        public void PaintTopInGame(ClipState clipState)
+        {
+            if (!Chances.Contains(ChanceWantedPercentage)) return;      //false settings
+            if (!Attempts.Contains(NumberOfAttempts)) return;            //false settings
+           
+            if (clipState == ClipState.Inventory && InventoryNumbers)
+            {
+                stashTabAbs = Hud.Inventory.SelectedStashTabIndex + Hud.Inventory.SelectedStashPageIndex * Hud.Inventory.MaxStashTabCountPerPage;
+ 
+                foreach (var item in Hud.Game.Items)
+                {
+                    if (item.SnoItem.MainGroupCode != "gems_unique") continue;
+                    if (item.Location == ItemLocation.Stash)
+                    {
+                        if ((item.InventoryY / 10) != stashTabAbs) continue;
+                    }
+                    if ((item.InventoryX < 0) || (item.InventoryY < 0)) continue;
+     
+                    var rect = Hud.Inventory.GetItemRect(item);
+                    if (rect == System.Drawing.RectangleF.Empty) continue;
+     
+                    DrawItemGRupgradeChance(item, rect);
+                }
+            }
+           
+            if (clipState == ClipState.AfterClip && HoveredNumbers)
+                DrawTextLine();
+        }
+ 
+        private void DrawItemGRupgradeChance(IItem item, System.Drawing.RectangleF rect)
+        {
+            var jewelRank = item.JewelRank;
+            if (jewelRank == -1) {jewelRank = 0;}
+           
+            if (item.SnoItem.Sno == 3249876973 && jewelRank == 100 ||   // 3249876973 - Esoteric Alteration
+                item.SnoItem.Sno == 3249984784 && jewelRank == 100 ||   // 3249984784 - Mutilation Guard
+                item.SnoItem.Sno == 3248762926 && jewelRank == 150 ||   // 3248762926 - Gogok of Swiftness
+                item.SnoItem.Sno == 3250883209 && jewelRank == 50 ||    // 3250883209 - Iceblink
+                item.SnoItem.Sno == 3249805099 && jewelRank == 50)      // 3249805099 - Boon of the Hoarder
+            {
+                var layout = GRupgradeChanceFont.GetTextLayout("max");
+                GRupgradeChanceFont.DrawText(layout, rect.X+24, rect.Y+33);
+               
+                return;
+            }
+           
+            GRlevel = jewelRank + AddPerc + (NumberOfAttempts - 1);
+			if (GRlevel < 1) {GRlevel = 1;}
+            var text = GRlevel.ToString("D", CultureInfo.InvariantCulture);
+             
+            if (GRlevel < 100)
+            {
+                var layout = GRupgradeChanceFont.GetTextLayout(text);
+                GRupgradeChanceFont.DrawText(layout, rect.X+33, rect.Y+33);
+            }
+            else if (GRlevel >= 100 )
+            {
+                var layout = GRupgradeChanceFont.GetTextLayout(text);
+                GRupgradeChanceFont.DrawText(layout, rect.X+27, rect.Y+33);
+            }
+        }
+       
+        private void DrawTextLine()
+        {
+            var item = Hud.Inventory.HoveredItem;
+            if (item == null) return;
+            if (!item.IsLegendary) return;
+            if (item.SnoItem.MainGroupCode != "gems_unique") return;
+           
+            var jewelRank = item.JewelRank;
+            if (jewelRank == -1) jewelRank = 0;
+			
+			 if (item.SnoItem.Sno == 3249876973 && jewelRank == 100 ||   // 3249876973 - Esoteric Alteration
+                item.SnoItem.Sno == 3249984784 && jewelRank == 100 ||   // 3249984784 - Mutilation Guard
+                item.SnoItem.Sno == 3248762926 && jewelRank == 150 ||   // 3248762926 - Gogok of Swiftness
+                item.SnoItem.Sno == 3250883209 && jewelRank == 50 ||    // 3250883209 - Iceblink
+                item.SnoItem.Sno == 3249805099 && jewelRank == 50)      // 3249805099 - Boon of the Hoarder
+            {
+				var textMax = string.Format(UpgradeTextMax);
+                var layoutMax = UpgradeFont.GetTextLayout(textMax);
+                UpgradeFont.DrawText(layoutMax, LeftFunc(), TopFunc());
+               
+                return;
+            }
+           
+            GRlevel = jewelRank + AddPerc + (NumberOfAttempts - 1);  
+			if (GRlevel < 1) {GRlevel = 1;}
+			if (NumberOfAttempts == 1)
+			 {	
+		    var textOne = string.Format(UpgradeTextOne, GRlevel, ChanceWantedPercentage);
+            var layoutOne = UpgradeFont.GetTextLayout(textOne);
+            UpgradeFont.DrawText(layoutOne, LeftFunc(), TopFunc());
+		 
+             }
+			 else
+			{ 	 
+            var text = string.Format(UpgradeText, GRlevel, NumberOfAttempts, ChanceWantedPercentage);
+            var layout = UpgradeFont.GetTextLayout(text); 
+            UpgradeFont.DrawText(layout, LeftFunc(), TopFunc());
+			}
+        }
+    }
+}
