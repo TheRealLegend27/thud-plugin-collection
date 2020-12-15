@@ -18,7 +18,7 @@ namespace Turbo.Plugins.inferno.gems
             ZeiDecorator = new GroundCircleDecorator(Hud)
             {
                 Brush = Hud.Render.CreateBrush(255,192,96,0, 1.5f),
-                Radius = 50f
+                Radius = 40f
             };
         }
  

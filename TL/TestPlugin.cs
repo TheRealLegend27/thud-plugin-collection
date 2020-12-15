@@ -23,8 +23,10 @@ namespace Turbo.Plugins.TL
 
         public void PaintWorld(WorldLayer layer)
         {
-            SpecialArea finishTick = Hud.Game.SpecialArea;
-            font.DrawText(finishTick + "", 200, 100);
+            int startTick = Hud.Game.Me.Powers.SkillSlots[2].CooldownStartTick;
+            font.DrawText(startTick + "", 200, 100);
+            int finishTick = Hud.Game.Me.Powers.SkillSlots[2].CooldownFinishTick;
+            font.DrawText(finishTick + "", 200, 300);
         }
     }
 }
