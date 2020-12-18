@@ -8,7 +8,7 @@ namespace Turbo.Plugins.inferno.gems
         public GroundCircleDecorator DHDecorator { get; set; }
         public DHBoss()
         {
-            Enabled = true;
+            Enabled = false;
         }
 
         public override void Load(IController hud)

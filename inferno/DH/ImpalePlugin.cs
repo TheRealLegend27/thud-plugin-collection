@@ -23,7 +23,7 @@ namespace Turbo.Plugins.inferno
 
         public ImpalePlugin()
         {
-            Enabled = true;
+            Enabled = false;
         }
  
         public override void Load(IController hud)

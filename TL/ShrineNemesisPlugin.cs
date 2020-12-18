@@ -54,28 +54,42 @@ namespace Turbo.Plugins.TL
             bool nemsInGroup = false;
             bool take = false;
             bool save = false;
+            List<string> missing = new List<string>();
 
             foreach (var player in Hud.Game.Players.OrderBy(p => p.PortraitIndex))
             {
-             if (player == null) continue;
+                if (player == null) continue;
 
-             var Nemo = player.Powers.GetBuff(318820);
+                if (!player.IsMe && player.IsInGame) {
+                    if (player.IsDead || player.SnoArea != Hud.Game.Me.SnoArea) {
+                        missing.Add(player.BattleTagAbovePortrait);
+                    }
+                }
 
-             if (Nemo == null || !Nemo.Active) {} 
-             else
+                var Nemo = player.Powers.GetBuff(318820);
+
+                if (Nemo == null || !Nemo.Active) {} 
+                else
                 {
-                 if (player.IsMe) take = true;
-                 else
-                  {
-                      nemsInGroup = true;
-                   if (NemesisMessage == string.Empty) NemesisMessage += Environment.NewLine + player.BattleTagAbovePortrait;
-                   else NemesisMessage += Environment.NewLine + " or " + player.BattleTagAbovePortrait;
-                  }
+                    if (player.IsMe) take = true;
+                    else
+                    {
+                        nemsInGroup = true;
+                        if (NemesisMessage == string.Empty) NemesisMessage += Environment.NewLine + player.BattleTagAbovePortrait;
+                        else NemesisMessage += Environment.NewLine + " or " + player.BattleTagAbovePortrait;
+                    }
                 }
             }
             
-            
-            if (take) NemesisMessage = "HIT ME!";
+            if (take && missing.Count > 0) {
+                NemesisMessage = "Wait for";
+                foreach (string missingName in missing)
+                {
+                    NemesisMessage += Environment.NewLine + missingName;
+                }
+                take = false;
+            }
+            else if (take) NemesisMessage = "HIT ME!";
             else if (nemsInGroup) NemesisMessage = "Leave for" + NemesisMessage;
             else NemesisMessage = "No nems :(";
 
@@ -84,8 +98,8 @@ namespace Turbo.Plugins.TL
 
             if (GriftBar.Visible && RiftPercentage > 95 && take)
              {
-                 save = true;
-               NemesisMessage = "Keep for boss!";
+                    save = true;
+                    NemesisMessage = "Keep for boss!";
              }
 
              var decorator = MedMessageDec;
