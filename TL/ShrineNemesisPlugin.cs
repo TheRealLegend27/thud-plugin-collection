@@ -7,9 +7,9 @@ namespace Turbo.Plugins.TL
 {
     public class ShrineNemesisPlugin : BasePlugin, ICustomizer, IInGameWorldPainter
     {
-        public WorldDecoratorCollection GoodMessageDec { get; set; }
-        public WorldDecoratorCollection BadMessageDec { get; set; }
-        public WorldDecoratorCollection MedMessageDec { get; set; }
+        public WorldDecoratorCollection DecoratorGreen { get; set; }
+        public WorldDecoratorCollection DecoratorRed { get; set; }
+        public WorldDecoratorCollection DecoratorOrange { get; set; }
 
         public ShrineNemesisPlugin()
         {
@@ -20,21 +20,21 @@ namespace Turbo.Plugins.TL
         {
             base.Load(hud);
 
-          GoodMessageDec = new WorldDecoratorCollection(
+          DecoratorGreen = new WorldDecoratorCollection(
           new GroundLabelDecorator(Hud)
           {
            BackgroundBrush = Hud.Render.CreateBrush(0, 0, 0, 0, 0),
            TextFont = Hud.Render.CreateFont("tahoma", 16, 255, 0, 255, 0, true, true, true),
           });
 
-          BadMessageDec = new WorldDecoratorCollection(
+          DecoratorRed = new WorldDecoratorCollection(
           new GroundLabelDecorator(Hud)
           {
            BackgroundBrush = Hud.Render.CreateBrush(0, 0, 0, 0, 0),
            TextFont = Hud.Render.CreateFont("tahoma", 16, 255, 255, 0, 0, true, true, true),
           });
 
-          MedMessageDec = new WorldDecoratorCollection(
+          DecoratorOrange = new WorldDecoratorCollection(
           new GroundLabelDecorator(Hud)
           {
            BackgroundBrush = Hud.Render.CreateBrush(0, 0, 0, 0, 0),
@@ -49,71 +49,64 @@ namespace Turbo.Plugins.TL
 
         public void PaintWorld(WorldLayer layer)
         {
-            string NemesisMessage = string.Empty;
-
-            bool nemsInGroup = false;
-            bool take = false;
-            bool save = false;
-            List<string> missing = new List<string>();
-
+            List<string> missingPlayers = new List<string>();
+            List<string> nemesisPlayers = new List<string>();
+            bool nemesisEquiped = false;
+            bool nemesisInGroup = false;
+            bool missingPlayer = false;
+            
             foreach (var player in Hud.Game.Players.OrderBy(p => p.PortraitIndex))
             {
                 if (player == null) continue;
 
-                if (!player.IsMe && player.IsInGame) {
-                    if (player.IsDead || player.SnoArea != Hud.Game.Me.SnoArea) {
-                        missing.Add(player.BattleTagAbovePortrait);
-                    }
-                }
+                if (!player.IsMe && player.IsInGame)
+                    if (player.IsDead || player.SnoArea != Hud.Game.Me.SnoArea || !player.CoordinateKnown)
+                        missingPlayers.Add(player.BattleTagAbovePortrait);
 
-                var Nemo = player.Powers.GetBuff(318820);
+                var nemesisBuff = player.Powers.GetBuff(318820);
 
-                if (Nemo == null || !Nemo.Active) {} 
+                if (nemesisBuff == null || !nemesisBuff.Active) {} 
                 else
-                {
-                    if (player.IsMe) take = true;
-                    else
-                    {
-                        nemsInGroup = true;
-                        if (NemesisMessage == string.Empty) NemesisMessage += Environment.NewLine + player.BattleTagAbovePortrait;
-                        else NemesisMessage += Environment.NewLine + " or " + player.BattleTagAbovePortrait;
-                    }
+                    if (player.IsMe) nemesisEquiped = true;
+                    else nemesisPlayers.Add(player.BattleTagAbovePortrait);
+            }
+
+            nemesisInGroup = nemesisPlayers.Count > 0;
+            missingPlayer = missingPlayers.Count > 0;
+
+            string message = string.Empty;
+            WorldDecoratorCollection dec = null;
+
+            if (nemesisEquiped) {
+                if (missingPlayer) {
+                    message = "Wait for:\n" + string.Join("\n", missingPlayers.ToArray());
+                    dec = DecoratorOrange;
+                }
+                else {
+                    message = "Take";
+                    dec = DecoratorGreen;
                 }
             }
-            
-            if (take && missing.Count > 0) {
-                NemesisMessage = "Wait for";
-                foreach (string missingName in missing)
-                {
-                    NemesisMessage += Environment.NewLine + missingName;
+            else {
+                dec = DecoratorRed;
+                if (nemesisInGroup) {
+                    message = "Leave for:\n" + string.Join("\n", nemesisPlayers.ToArray());
                 }
-                take = false;
+                else {
+                    message = "No nemesis :(";
+                }
             }
-            else if (take) NemesisMessage = "HIT ME!";
-            else if (nemsInGroup) NemesisMessage = "Leave for" + NemesisMessage;
-            else NemesisMessage = "No nems :(";
 
-            var GriftBar = Hud.Render.GreaterRiftBarUiElement;
-            var RiftPercentage = Hud.Game.RiftPercentage;
 
-            if (GriftBar.Visible && RiftPercentage > 95 && take)
-             {
-                    save = true;
-                    NemesisMessage = "Keep for boss!";
-             }
-
-             var decorator = MedMessageDec;
-             if (take) decorator = GoodMessageDec;
-             else if (nemsInGroup || save) decorator = BadMessageDec;
-
-             var shrines = Hud.Game.Shrines.Where(x => !x.IsDisabled && !x.IsOperated);
+            var shrines = Hud.Game.Shrines.Where(x => !x.IsDisabled && !x.IsOperated);
             foreach (var shrine in shrines)
             {
                 if (shrine.Type == ShrineType.HealingWell) continue;
                 if (shrine.Type == ShrineType.PoolOfReflection) continue;
                 
-                if(shrine.FloorCoordinate.Offset(0, 0, 10).IsOnScreen()) decorator.Paint(layer, null, shrine.FloorCoordinate.Offset(0, 0, 10), NemesisMessage);
+                if(shrine.FloorCoordinate.Offset(0, 0, 10).IsOnScreen()) dec.Paint(layer, null, shrine.FloorCoordinate.Offset(0, 0, 10), message);
             }
+
         }
     }
 }
