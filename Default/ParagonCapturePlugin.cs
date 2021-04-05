@@ -40,6 +40,7 @@ namespace Turbo.Plugins.Default
         {
             if (!Enabled)
                 return;
+
             if (!Hud.Game.IsInGame)
                 return;
 
@@ -71,8 +72,7 @@ namespace Turbo.Plugins.Default
                 _lastLevelUp.Restart();
                 _lastLevelUpDelay = null;
                 _lastLevelUpLimiter.Restart();
-
-                Hud.TextLog.Log("levelup_paragon_" + Hud.MyBattleTag, paragonLevel.ToString("D", CultureInfo.InvariantCulture));
+                Hud.TextLog.LogParagonLevel();
             }
 
             if ((_lastLevelUpDelay?.TimerTest(DelayBetweenFrames) != false) && !_lastLevelUpLimiter.TimerTest(8 * 1000))

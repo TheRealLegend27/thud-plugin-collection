@@ -171,6 +171,9 @@ namespace Turbo.Plugins.Default
 
         public static string ValueToString(double value, ValueFormat format)
         {
+            if (double.IsNaN(value))
+                return "NaN";
+
             if (value < 0)
                 return "-" + ValueToString(-value, format);
 

@@ -618,11 +618,11 @@ namespace Turbo.Plugins.inferno.Jack.Extensions
             yield return powerList.Generic_EnchantressCripple; // 84469
             yield return powerList.Generic_EnchantressDisorient; // 101990
             yield return powerList.Generic_EnchantressFocusedMind; // 101425
-            yield return powerList.Generic_EnchantressForcefulPush; // 101969
+            // yield return powerList.Generic_EnchantressForcefulPush; // 101969
             yield return powerList.Generic_EnchantressMassCharm; // 201524
             yield return powerList.Generic_EnchantressMeleeInstant; // 230238
-            yield return powerList.Generic_EnchantressMissileWard; // 257687
-            yield return powerList.Generic_EnchantressPoweredArmor; // 101461
+            // yield return powerList.Generic_EnchantressMissileWard; // 257687
+            // yield return powerList.Generic_EnchantressPoweredArmor; // 101461
             yield return powerList.Generic_EnchantressRunAway; // 186200
             yield return powerList.Generic_EnchantressScorchedEarth; // 220872
             yield return powerList.Generic_EnterRecallPortal; // 201538
@@ -1129,13 +1129,13 @@ namespace Turbo.Plugins.inferno.Jack.Extensions
             yield return powerList.Generic_ScoundrelAnatomy; // 30454
             yield return powerList.Generic_ScoundrelBandage; // 30455
             yield return powerList.Generic_ScoundrelCripplingShot; // 95675
-            yield return powerList.Generic_ScoundrelDirtyFighting; // 97436
+            // yield return powerList.Generic_ScoundrelDirtyFighting; // 97436
             yield return powerList.Generic_ScoundrelHysteria; // 200169
-            yield return powerList.Generic_ScoundrelPoisonArrow; // 30460
+            // yield return powerList.Generic_ScoundrelPoisonArrow; // 30460
             yield return powerList.Generic_ScoundrelPowerShot; // 95690
             yield return powerList.Generic_ScoundrelRangedProjectile; // 99902
             yield return powerList.Generic_ScoundrelRunAway; // 99904
-            yield return powerList.Generic_ScoundrelVanish; // 30464
+            // yield return powerList.Generic_ScoundrelVanish; // 30464
             yield return powerList.Generic_ScrollBuff; // 30469
             yield return powerList.Generic_SelectingSkill; // 217340
             yield return powerList.Generic_SetItemBonusBuff; // 123014
@@ -1229,7 +1229,7 @@ namespace Turbo.Plugins.inferno.Jack.Extensions
             yield return powerList.Generic_TeleportToPlayerCast; // 371139
             yield return powerList.Generic_TeleportToWaypoint; // 349060
             yield return powerList.Generic_TeleportToWaypointCast; // 371141
-            yield return powerList.Generic_TemplarGuardian; // 30359
+            // yield return powerList.Generic_TemplarGuardian; // 30359
             yield return powerList.Generic_TemplarHeal110; // 257640
             yield return powerList.Generic_TemplarInspire; // 30356
             yield return powerList.Generic_TemplarIntervene; // 93938

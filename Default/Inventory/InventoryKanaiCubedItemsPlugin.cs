@@ -14,10 +14,15 @@
 
             if (Hud.Game.Me.CubeSnoItem1 != null)
                 DrawKanaiItem(Hud.Game.Me.CubeSnoItem1, 0);
+
             if (Hud.Game.Me.CubeSnoItem2 != null)
                 DrawKanaiItem(Hud.Game.Me.CubeSnoItem2, 1);
+
             if (Hud.Game.Me.CubeSnoItem3 != null)
                 DrawKanaiItem(Hud.Game.Me.CubeSnoItem3, 2);
+
+            if (Hud.Game.Me.CubeSnoItem4 != null)
+                DrawKanaiItem(Hud.Game.Me.CubeSnoItem4, 3);
         }
 
         private void DrawKanaiItem(ISnoItem snoItem, int index)
